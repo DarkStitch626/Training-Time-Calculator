@@ -1,0 +1,12 @@
+12 9 6 3 0821 1209
+6 4 3 2 0821 1014
+6 4 3 2 01016 1209
+8 6 4 2 0821 1112
+8 6 4 2 0918 1209
+
+
+The format for each term is:
+
+Fulltime 3/4Time HalfTime 1/4Time StartDate EndDate
+
+The dates should be entered as MMDD
