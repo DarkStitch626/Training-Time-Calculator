@@ -1,5 +1,7 @@
 import term as t
 from Semester import Semester
+import sys
+import os
 
 class Calculate:
     def __init__(self, chosen_degree_type, chosen_semester, widgets):
@@ -15,10 +17,14 @@ class Calculate:
                    Semester(self.read_file(11,15), 5, "Fall") if self.chosen_semester == 'Fall' else \
                    Semester(self.read_file(19,25), 7, "Summer")
 
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, relative_path)
 
     def read_file(self, start_line, end_line):
         Terms = []
-        filename = 'Undergrad.txt' if self.chosen_degree_type == "Undergraduate" else 'Graduate.txt'
+        filename = self.resource_path('Undergrad.txt') if self.chosen_degree_type == "Undergraduate" else self.resource_path('Graduate.txt')
         with open(filename, 'r') as file:
             for current_line_number, line in enumerate(file, start=1):
                 if current_line_number >= start_line and current_line_number <= end_line:
