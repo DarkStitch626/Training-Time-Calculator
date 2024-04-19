@@ -134,5 +134,6 @@ class GUI:
         self.answer_widgets = []
         self.initialize_window()
 
-gui = GUI()
-gui.run()
+if __name__ == "__main__":
+    gui = GUI()
+    gui.run()
