@@ -1,5 +1,6 @@
 class Term:
-    def __init__(self, FT, TQT, HT, QT, start_date, end_date):
+    def __init__(self, term_number, FT, TQT, HT, QT, start_date, end_date):
+        self.term_number = term_number
         self.FT = FT    # Full time
         self.TQT = TQT    # Half Three-quarter time
         self.HT = HT     # Half time

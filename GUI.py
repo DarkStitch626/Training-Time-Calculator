@@ -94,8 +94,8 @@ class GUI:
 
         self.answer_widgets.append(tk.Button(self.answer_frame, text="Back", command=self.main_screen, width=20, height=2))
         self.answer_widgets[0].grid(row=1, column=1, padx=(0, 20), pady=(0,20), sticky='se')
-
         Info = Calculate(self.degree_var.get(), self.semester_var.get(), self.textboxes)
+        """
         Info.calculate_term_percentages()
         result = Info.calculate_calculated_times()
         if result == 'full-time':
@@ -128,6 +128,7 @@ class GUI:
             full_schedule = "\n".join(schedule_parts)
             self.answer_widgets.append(tk.Label(self.answer_frame, text=full_schedule))
             self.answer_widgets[1].grid(row=0, column=0, columnspan=2, padx=(0, 20), pady=(0,20))
+            """
 
     def format_date(self, date):
         if len(date) <= 4:

@@ -5,7 +5,7 @@ class Calculate:
     def __init__(self, chosen_degree_type, chosen_semester, widgets):
         self.chosen_degree_type = chosen_degree_type
         self.chosen_semester = chosen_semester
-        self.widgets = widgets
+        self.terms = self.get_terms(widgets)
         self.semester = self.get_semester_info()
         self.term_percentages = {}
 
@@ -24,7 +24,7 @@ class Calculate:
                     # Split the line into components and convert them to integers
                     parts = line.strip().split(' ')
                     # Ensure that there are exactly four numbers in the line
-                    if len(parts) == 6:
+                    if len(parts) == 7:
                         nums = list(map(int, parts))
                         # Create an instance of Tmp with these numbers
                         Term = t.Term(*nums)
@@ -33,40 +33,52 @@ class Calculate:
                     break  # Stop reading if end line is surpassed
         return Terms
 
-    def calculate_term_percentages(self):
-        for i, (term, widget) in enumerate(self.widgets.items()):
+    def get_terms(self, widgets):
+        self.terms = {}
+        for term, widget in widgets.items():
             widget_str = widget.get()
-            if widget_str == "":
-                self.term_percentages[term] = 0
-            else:
-                self.term_percentages[term] = float(widget_str) / self.semester.terms[i].FT
+            if widget_str != "":
+                self.terms[term] = widget_str
+
+    def calculate_term_percentages(self):
+        for i, (term, credits) in enumerate(self.terms.items()):
+            self.term_percentages[term] = float(credits) / self.semester.terms[i].FT
 
     def calculate_calculated_times(self):
-        if self.check_for_full_time() == 1:
-            return 'full-time'
-        elif self.check_for_full_time() == 2:
-            return (self.semester.terms[1].end_date, self.semester.terms[2].start_date)
+        # if self.check_for_full_time() == 1:
+        #     return 'full-time'
+        # elif self.check_for_full_time() == 2:
+        #     return (self.semester.terms[1].end_date, self.semester.terms[2].start_date)
         
-        return self.check_changing_dates()
+        # return self.check_changing_dates()
 
-    def check_for_full_time(self):
+        dates = []
+        for term1 in self.terms.keys():
+            for term2 in self.semester.terms:
+                if term1 == term2:
+                    if term2.start_date not in dates:
+                        dates.append(term2.start_date)
+                    if term2.end_date not in dates:
+                        dates.append(term2.end_date)
 
-        if self.term_percentages['1'] == 1:
-            return 1
-        if (self.term_percentages['1'] + self.term_percentages['91'] >= 1) and \
-            (self.term_percentages['1'] + self.term_percentages['3'] >= 1):
-                return 1
-        if (self.term_percentages['1'] + self.term_percentages['2'] >= 1) and \
-            (self.term_percentages['1'] + self.term_percentages['92'] >= 1):
-                return 1
-        # if (self.term_percentages['91'] + self.term_percentages['3'] >= 1):
-        #     return 1
-        # if (self.term_percentages['2'] + self.term_percentages['92'] >= 1):
-        #     return 1
-        # if (self.term_percentages['91'] + self.term_percentages['92'] >= 1):
-        #     return 1
-        if (self.term_percentages['2'] + self.term_percentages['3'] >= 1):
-            return 2
+    # def check_for_full_time(self):
+
+    #     if self.term_percentages['1'] == 1:
+    #         return 1
+    #     if (self.term_percentages['1'] + self.term_percentages['91'] >= 1) and \
+    #         (self.term_percentages['1'] + self.term_percentages['3'] >= 1):
+    #             return 1
+    #     if (self.term_percentages['1'] + self.term_percentages['2'] >= 1) and \
+    #         (self.term_percentages['1'] + self.term_percentages['92'] >= 1):
+    #             return 1
+    #     # if (self.term_percentages['91'] + self.term_percentages['3'] >= 1):
+    #     #     return 1
+    #     # if (self.term_percentages['2'] + self.term_percentages['92'] >= 1):
+    #     #     return 1
+    #     # if (self.term_percentages['91'] + self.term_percentages['92'] >= 1):
+    #     #     return 1
+    #     if (self.term_percentages['2'] + self.term_percentages['3'] >= 1):
+    #         return 2
 
     def check_changing_dates(self):
         if self.chosen_semester != "Summer":
@@ -85,17 +97,11 @@ class Calculate:
 
             previous_time = None
 
-            for time in calculated_times.values():
-                print(time)
-
             for date in sorted(changing_dates):
                 current_time = calculated_times[date]
                 if current_time != previous_time:
                     training_times[date] = current_time
                     previous_time = current_time
-
-            # for time in training_times.values():
-            #     print(time)
 
             for date, time in training_times.items():
                 if time >= 1:
