@@ -49,7 +49,6 @@ class Calculate:
                 if term1 == str(term2.term_number):
                     required_credits = term2.FT
                     self.term_percentages[term1] = int(credits) / required_credits
-                    print(f"{term2.term_number} : {self.term_percentages[term1]}")
 
     def calculate_calculated_times(self):
         self.dates = []

@@ -105,9 +105,6 @@ class GUI:
             sorted_dates = sorted(dates)
             schedule_parts = []
 
-            # for key in result.keys():
-            #     print(key)
-
             for i, date in enumerate(sorted_dates[:-1]):
                 current_status = result[date]
                 # Handle all dates except the last
