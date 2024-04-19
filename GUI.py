@@ -95,43 +95,37 @@ class GUI:
         self.answer_widgets.append(tk.Button(self.answer_frame, text="Back", command=self.main_screen, width=20, height=2))
         self.answer_widgets[0].grid(row=1, column=1, padx=(0, 20), pady=(0,20), sticky='se')
         Info = Calculate(self.degree_var.get(), self.semester_var.get(), self.textboxes)
-        """
         Info.calculate_term_percentages()
         result = Info.calculate_calculated_times()
+        dates = Info.get_dates()
         if result == 'full-time':
             self.answer_widgets.append(tk.Label(self.answer_frame, text="You are full-time for the entire semester"))
-            self.answer_widgets[1].grid(row=0, column=0, columnspan=2, padx=(0, 20), pady=(0,20))
-        if isinstance(result, tuple):
-            # formatted_dates = self.date_format(result)
-            self.answer_widgets.append(tk.Label(self.answer_frame, text=f"You are full-time for the entire semester except between {self.format_date(result[0])} and {self.format_date(result[1])}"))
-            self.answer_widgets[1].grid(row=0, column=0, columnspan=2, padx=(0, 20), pady=(0,20))
-        if isinstance(result, dict):
-            # formatted_dates = self.date_format(result.keys())
-            # for date in formatted_dates:
-            #     print(date)
-            sorted_dates = sorted(result)
+            self.answer_widgets[-1].grid(row=0, column=0, columnspan=2, padx=(0, 20), pady=(0,20))
+        elif isinstance(result, dict):
+            sorted_dates = sorted(dates)
             schedule_parts = []
 
-            for i, date in enumerate(sorted_dates[:-1]):  # Go up to the second-to-last item
-                current_status = result[date]
-                next_date = sorted_dates[i + 1]
-                schedule_parts.append(f"You will be {current_status} between {self.format_date(date)} and {self.format_date(next_date)}.")
+            # for key in result.keys():
+            #     print(key)
 
-            # Handle the last date range if needed
-            if sorted_dates:
-                last_date = sorted_dates[-1]
-                last_status = result[last_date]
-                end_date = Info.get_end_date()
-                schedule_parts.append(f"You will be {last_status} between {self.format_date(last_date)} and {self.format_date(end_date)}.")
+            for i, date in enumerate(sorted_dates[:-1]):
+                current_status = result[date]
+                # Handle all dates except the last
+                if i < len(sorted_dates) - 1:
+                    next_date = sorted_dates[i + 1]
+                    schedule_parts.append(f"You will be {current_status} between {self.format_date(date)} and {self.format_date(next_date)}.")
+                # Handle the last date
+                else:
+                    end_date = sorted_dates[len(sorted_dates) - 1]  # Assuming get_end_date() is implemented and returns a string
+                    schedule_parts.append(f"You will be {current_status} from {self.format_date(date)} until {self.format_date(end_date)}.")
 
             # Combine all parts into one schedule string
             full_schedule = "\n".join(schedule_parts)
             self.answer_widgets.append(tk.Label(self.answer_frame, text=full_schedule))
-            self.answer_widgets[1].grid(row=0, column=0, columnspan=2, padx=(0, 20), pady=(0,20))
-            """
+            self.answer_widgets[-1].grid(row=0, column=0, columnspan=2, padx=(0, 20), pady=(0,20))
 
     def format_date(self, date):
-        if len(date) <= 4:
+        if len(str(date)) <= 4:
             date_str = str(date)
             date_str = date_str.zfill(4)
             return (date_str[:2] + '/' + date_str[2:])

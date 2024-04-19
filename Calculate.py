@@ -8,6 +8,7 @@ class Calculate:
         self.terms = self.get_terms(widgets)
         self.semester = self.get_semester_info()
         self.term_percentages = {}
+        self.dates = []
 
     def get_semester_info(self):
         return Semester(self.read_file(3,7), 5, "Spring") if self.chosen_semester == 'Spring' else \
@@ -34,90 +35,101 @@ class Calculate:
         return Terms
 
     def get_terms(self, widgets):
-        self.terms = {}
+        terms = {}
         for term, widget in widgets.items():
             widget_str = widget.get()
             if widget_str != "":
-                self.terms[term] = widget_str
+                terms[term] = widget_str
+
+        return terms
 
     def calculate_term_percentages(self):
-        for i, (term, credits) in enumerate(self.terms.items()):
-            self.term_percentages[term] = float(credits) / self.semester.terms[i].FT
+        for term1, credits in self.terms.items():
+            for i, term2 in enumerate(self.semester.terms):
+                if term1 == str(term2.term_number):
+                    required_credits = term2.FT
+                    self.term_percentages[term1] = int(credits) / required_credits
+                    print(f"{term2.term_number} : {self.term_percentages[term1]}")
 
     def calculate_calculated_times(self):
-        # if self.check_for_full_time() == 1:
-        #     return 'full-time'
-        # elif self.check_for_full_time() == 2:
-        #     return (self.semester.terms[1].end_date, self.semester.terms[2].start_date)
+        self.dates = []
+
+        # Shortcut for full-time
+        if '1' in self.term_percentages and len(self.term_percentages) == 1 and self.term_percentages['1'] == 1:
+            return 'full-time'
+
+        # Collect all start and end dates
+        for term in self.semester.terms:
+            if str(term.term_number) in self.term_percentages:
+                self.dates.extend([term.start_date, term.end_date])
+
+        # Remove duplicates and sort dates
+        self.dates = sorted(set(self.dates))
+
+        calculated_terms = {}
+        # Iterate over the sorted dates
+        for i, date in enumerate(self.dates):
+            # Don't process the last date yet
+            if i == len(self.dates) - 1:
+                break
+            
+            tmp = []
+            next_date = self.dates[i + 1]
+
+            # For each term, check if it's active between date and next_date
+            for term in self.semester.terms:
+                if str(term.term_number) in self.term_percentages:
+                    # Check if the current term is active in this date range
+                    if term.start_date <= date and term.end_date >= next_date:
+                        tmp.append(self.term_percentages[str(term.term_number)])
+
+            # Sum the percentages in tmp and cap it at 1
+            calculated_terms[date] = min(sum(tmp), 1)
+
+        # Now categorize each calculated term into time categories
+        for date, time in calculated_terms.items():
+            if time >= 1:
+                calculated_terms[date] = "full-time"
+            elif time >= 0.75:
+                calculated_terms[date] = "3/4-time"
+            elif time >= 0.5:
+                calculated_terms[date] = "half-time"
+            elif time >= 0.25:
+                calculated_terms[date] = "quarter-time"
+            else:
+                calculated_terms[date] = "less than quarter-time"
+
+        # Process the last date range if needed
+        last_date = self.dates[-1]
+        tmp = []
+        for term in self.semester.terms:
+            if term.end_date == last_date and str(term.term_number) in self.term_percentages:
+                tmp.append(self.term_percentages[str(term.term_number)])
+
+        # If there are no terms ending on the last date, assume training continues at the last known rate
+        if not tmp and calculated_terms:
+            tmp.append(calculated_terms[self.dates[-2]])
+
+        # Sum the percentages in tmp for the last date and cap it at 1
+        calculated_terms[last_date] = min(sum(tmp), 1)
         
-        # return self.check_changing_dates()
+        # Categorize the last date into time categories
+        time = calculated_terms[last_date]
+        if time >= 1:
+            calculated_terms[last_date] = "full-time"
+        elif time >= 0.75:
+            calculated_terms[last_date] = "3/4-time"
+        elif time >= 0.5:
+            calculated_terms[last_date] = "half-time"
+        elif time >= 0.25:
+            calculated_terms[last_date] = "quarter-time"
+        else:
+            calculated_terms[last_date] = "less than quarter-time"
 
-        dates = []
-        for term1 in self.terms.keys():
-            for term2 in self.semester.terms:
-                if term1 == term2:
-                    if term2.start_date not in dates:
-                        dates.append(term2.start_date)
-                    if term2.end_date not in dates:
-                        dates.append(term2.end_date)
-
-    # def check_for_full_time(self):
-
-    #     if self.term_percentages['1'] == 1:
-    #         return 1
-    #     if (self.term_percentages['1'] + self.term_percentages['91'] >= 1) and \
-    #         (self.term_percentages['1'] + self.term_percentages['3'] >= 1):
-    #             return 1
-    #     if (self.term_percentages['1'] + self.term_percentages['2'] >= 1) and \
-    #         (self.term_percentages['1'] + self.term_percentages['92'] >= 1):
-    #             return 1
-    #     # if (self.term_percentages['91'] + self.term_percentages['3'] >= 1):
-    #     #     return 1
-    #     # if (self.term_percentages['2'] + self.term_percentages['92'] >= 1):
-    #     #     return 1
-    #     # if (self.term_percentages['91'] + self.term_percentages['92'] >= 1):
-    #     #     return 1
-    #     if (self.term_percentages['2'] + self.term_percentages['3'] >= 1):
-    #         return 2
-
-    def check_changing_dates(self):
-        if self.chosen_semester != "Summer":
-            changing_dates = [f"{self.semester.terms[0].start_date}", f"{self.semester.terms[4].start_date}", f"{self.semester.terms[1].end_date}", f"{self.semester.terms[2].start_date}", f"{self.semester.terms[3].end_date}"]
-            calculated_times = {}
-            training_times = {}
-            calculated_times[changing_dates[0]] = (self.term_percentages['1'] + self.term_percentages['2'] + self.term_percentages['91'])
-            calculated_times[changing_dates[1]] = (self.term_percentages['1'] + self.term_percentages['2'] + self.term_percentages['91'] + self.term_percentages['92'])
-            calculated_times[changing_dates[2]] = (self.term_percentages['1'] + self.term_percentages['91'] + self.term_percentages['92'])
-            calculated_times[changing_dates[3]] = (self.term_percentages['1'] + self.term_percentages['3'] + self.term_percentages['91'] + self.term_percentages['92'])
-            calculated_times[changing_dates[4]] = (self.term_percentages['1'] + self.term_percentages['3'] + self.term_percentages['92'])
-
-            for date in sorted(changing_dates):
-                if calculated_times[date] > 1:
-                   calculated_times[date] = 1 
-
-            previous_time = None
-
-            for date in sorted(changing_dates):
-                current_time = calculated_times[date]
-                if current_time != previous_time:
-                    training_times[date] = current_time
-                    previous_time = current_time
-
-            for date, time in training_times.items():
-                if time >= 1:
-                    training_times[date] = "full-time"
-                elif time >= 0.75:
-                    training_times[date] = "3/4-time"
-                elif time >= 0.5:
-                    training_times[date] = "half-time"
-                elif time >= 0.25:
-                    training_times[date] = "quarter-time"
-                else:
-                    training_times[date] = "less than quarter-time"
-
-            # for value in training_times.values():
-            #     print(value)
-            return training_times
+        return calculated_terms
         
     def get_end_date(self):
         return str(self.semester.terms[self.semester.number_of_terms - 1].end_date)
+    
+    def get_dates(self):
+        return self.dates
