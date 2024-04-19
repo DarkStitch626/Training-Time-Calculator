@@ -8,6 +8,8 @@ class Term:
         self.end_date = end_date
 
     def _calculate_training_time(self, enrolled_credits):
+        if enrolled_credits == 0:
+            return 0
         current_percentage = (enrolled_credits / self.FT)
         if current_percentage < 1:
             return current_percentage
