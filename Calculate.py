@@ -31,7 +31,7 @@ class Calculate:
                     # Split the line into components and convert them to integers
                     parts = line.strip().split(' ')
                     # Ensure that there are exactly four numbers in the line
-                    if len(parts) == 7:
+                    if len(parts) == 4:
                         nums = list(map(int, parts))
                         # Create an instance of Tmp with these numbers
                         Term = t.Term(*nums)
