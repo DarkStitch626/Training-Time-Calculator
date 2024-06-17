@@ -1,4 +1,15 @@
-from GUI import GUI
+from Operations import Calculate as cal
+from Operations import Controller as con
+from Objects import Window as win
+import tkinter as tk
 
-gui = GUI()
-GUI.run()
+def main():
+    root = tk.Tk()
+
+    calculate = cal.Calculate()
+    controller = con.Controller(calculate)
+    window = win.Window(root, controller)
+
+    window.run()
+
+main()
