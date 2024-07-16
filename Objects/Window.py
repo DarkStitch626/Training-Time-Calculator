@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 class Window:
     def __init__(self, root, controller):
@@ -70,48 +71,32 @@ class Window:
         self.controller.build_semester()
         for i, term in enumerate(self.controller.get_semester_terms()):
             lbl = tk.Label(self.frames[1], text=term.get_name())
-            self.values.append(tk.StringVar())
-            textbox = tk.Entry(self.frames[1], textvariable=self.values[i])
+            validate_cmd = self.frames[1].register(self.validate_numeric_input)
+            self.values.append(tk.StringVar(value="0"))
+            textbox = tk.Entry(self.frames[1], textvariable=self.values[i], validate="key", validatecommand=(validate_cmd, '%P'))
+            textbox.bind("<FocusOut>", lambda event, var=self.values[i]: self.on_focus_out(event, var))
             lbl.grid(row=(i+1), column=0, padx=10, pady=5)
             textbox.grid(row=(i+1), column=1, padx=10, pady=5)
+
+    def validate_numeric_input(self, value_if_allowed):
+        if value_if_allowed.isdigit() or value_if_allowed == "":
+            return True
+        else:
+            return False
+        
+    def on_focus_out(self, event, string_var):
+        if string_var.get() == "":
+            event.widget.delete(0, tk.END)  # Clear the entry
+            event.widget.insert(0, "0")  # Insert "0" into the entry
+            string_var.set("0")  # Update the StringVar
 
     def _build_button_frame(self):
         btn = tk.Button(self.frames[2], text="Calculate", command=self.get_calculation, width=20, height=2)
         btn.grid(row=0, column=1, padx=(0, 20))
 
-    def _build_answer_frame(self):
-        output = self.controller.get_output()
-
-        lbl = tk.Label(self.frames[3], text=output, wraplength=500, justify='left')
-        lbl.grid(row=0, column=0, padx=10, pady=10)
-
     def get_calculation(self):
         self.controller.begin_calculations()
-    
-
-    def build_window(self, temp):
-        if temp == 0:
-            self.frames[3].grid_forget()
-            
-            self.frames[0].grid(row=0, column=0, sticky="nsew")
-            self.frames[1].grid(row=0, column=1, sticky="nsew")
-            self.frames[2].grid(row=1, column=0, columnspan=2, sticky="nsew")
-            self.frames[0].grid_propagate(False)
-            self.frames[1].grid_propagate(False)
-            self.frames[2].grid_propagate(False)
-            self.frames[2].grid_rowconfigure(0, weight=1)
-            self.frames[2].grid_columnconfigure(0, weight=1)
-            self.frames[2].grid_columnconfigure(1, weight=0)
-        else:
-            self.frames[0].grid_forget()
-            self.frames[1].grid_forget()
-            self.frames[2].grid_forget()
-
-            self.frames[3].grid(row=0, column=0, sticky="nsew")
-            self.frames[3].grid_propagate(False)
-            self.frames[3].grid_rowconfigure(0, weight=1)
-            self.frames[3].grid_columnconfigure(0, weight=1)
-            self.frames[3].grid_columnconfigure(1, weight=0)
+        messagebox.showinfo("Answer", self.controller.get_output())
 
     def run(self):
         self.root.mainloop()

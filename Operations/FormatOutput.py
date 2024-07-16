@@ -13,7 +13,7 @@ def format_training_time(calculations):
                 output_array.append(f"When {key} begins, you will become {value_to_time(rounded_value)} \n")
                 previous_rounded_value = rounded_value
             elif rounded_value < previous_rounded_value:
-                output_array.append(f"When {key} begins, you will drop to {value_to_time(rounded_value)} \n")
+                output_array.append(f"When {key} ends, you will drop to {value_to_time(rounded_value)} \n")
                 previous_rounded_value = rounded_value
 
     output = "".join(output_array)

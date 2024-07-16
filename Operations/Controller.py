@@ -46,7 +46,7 @@ class Controller():
         terms = self.get_semester_terms()
         given_credits = {}
         for i, credit in enumerate(self.credits):
-            if credit.get() != "":
+            if credit.get() != 0:
                 given_credits[terms[i].get_name()] = credit.get()
 
         return given_credits
