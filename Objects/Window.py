@@ -49,6 +49,7 @@ class Window:
         degree_box.configure(textvariable=self.controller.get_degree_var(), state='readonly', height='20')
         self.controller.get_degree_var().set('Undergrad')
         degree_box['values'] = ('Undergrad', 'Graduate')
+        self.controller.get_degree_var().trace_add('write', lambda *args: self._build_entry_frame())
 
         semester_box.configure(textvariable=self.controller.get_semester_var(), state='readonly', height='20')
         semester_box['values'] = ('Spring', 'Fall', 'Summer')
@@ -67,6 +68,9 @@ class Window:
             widget.grid_remove()
         
         self.values.clear()
+
+        if self.controller.get_semester_var() == "":
+            return
 
         self.controller.build_semester()
         for i, term in enumerate(self.controller.get_semester_terms()):
