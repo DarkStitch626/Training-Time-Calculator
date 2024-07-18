@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import time
 
 class Window:
     def __init__(self, root, controller):
@@ -47,8 +48,8 @@ class Window:
         semester_box = ttk.Combobox(self.frames[0])
 
         degree_box.configure(textvariable=self.controller.get_degree_var(), state='readonly', height='20')
-        self.controller.get_degree_var().set('Undergrad')
-        degree_box['values'] = ('Undergrad', 'Graduate')
+        self.controller.get_degree_var().set('Undergraduate')
+        degree_box['values'] = ('Undergraduate', 'Graduate')
         self.controller.get_degree_var().trace_add('write', lambda *args: self._build_entry_frame())
 
         semester_box.configure(textvariable=self.controller.get_semester_var(), state='readonly', height='20')
@@ -72,6 +73,8 @@ class Window:
         if self.controller.get_semester_var() == "":
             return
 
+        start_time = time.time()
+
         self.controller.build_semester()
         for i, term in enumerate(self.controller.get_semester_terms()):
             lbl = tk.Label(self.frames[1], text=term.get_name())
@@ -81,6 +84,9 @@ class Window:
             textbox.bind("<FocusOut>", lambda event, var=self.values[i]: self.on_focus_out(event, var))
             lbl.grid(row=(i+1), column=0, padx=10, pady=5)
             textbox.grid(row=(i+1), column=1, padx=10, pady=5)
+
+        end_time = time.time()
+        print(f"Entry time: {end_time - start_time} seconds")
 
     def validate_numeric_input(self, value_if_allowed):
         if value_if_allowed.isdigit() or value_if_allowed == "":

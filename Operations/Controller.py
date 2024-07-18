@@ -4,6 +4,7 @@ sys.path.append(os.path.abspath('../../'))
 
 from Objects import Semester as S
 from Readers import FileReader as FR
+from Readers import info_scraper as IS
 from Operations import FormatOutput as ftt
 
 class Controller():
@@ -16,8 +17,13 @@ class Controller():
         self.calculated_terms = None
         self.output = None
 
+    # def build_semester(self):
+    #     terms, number_of_terms = FR.read_file(self.degree_var.get(), self.semester_var.get())
+    #     self.semester.set_terms(terms)
+    #     self.semester.set_number_of_terms(number_of_terms)
+
     def build_semester(self):
-        terms, number_of_terms = FR.read_file(self.degree_var.get(), self.semester_var.get())
+        terms, number_of_terms = IS.search_by_semester(self.degree_var.get(), self.semester_var.get())
         self.semester.set_terms(terms)
         self.semester.set_number_of_terms(number_of_terms)
 
